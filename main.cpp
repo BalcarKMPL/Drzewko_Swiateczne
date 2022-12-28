@@ -113,7 +113,6 @@ Formula* Parse(char* b, char* e, Variable** vars) {
                     default:
                         cout << "Coś się zjebało...";
                         break;
-
                 }
             }
         }
@@ -129,13 +128,14 @@ int main() {
         Vars[i] = new Variable(vars + i);
     }
 
-    char b[] = "(p>(q>p))";
+    char b[] = "(((p>q)&(q>r))=(p>r))";
     char* e = b + sizeof(b) - 1;
     Formula* f = Parse(b, e, Vars);
-    cout << "p   q   " << b << endl;
-    for (int i = 0; i < 4; ++i) {
+    cout << "p   q   r   " << b << endl;
+    for (int i = 0; i < 8; ++i) {
         vars['p'-'a'] = (bool)(i & 1);
         vars['q'-'a'] = (bool)(i & 2);
-        cout << vars['p'-'a']  << ' ' << b[2] << ' ' << vars['q'-'a'] << "   " << f->val() << endl;
+        vars['r'-'a'] = (bool)(i & 4);
+        cout << vars['p'-'a']  << "   " << vars['q'-'a']  << "   " << vars['r'-'a'] << "   " << f->val() << endl;
     }
 }
