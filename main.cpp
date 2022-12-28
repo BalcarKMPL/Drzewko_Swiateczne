@@ -70,34 +70,80 @@ struct Negation : Formula {
     ~Negation() override { print("Negation destructed"); delete c; }
 };
 
-bool isletter(char c) {
+inline bool isletter(char c) {
     return 'a' <= c and c <= 'z';
 }
 
-//Formula* Parse(char* b, char* e, Formula* vars) {
-//    if (isletter(*b) and b+1 == e)
-//        return vars + *b - 'a';
-//    if (*b=='~')
-//        return new Negation(Parse(b+1,e,vars));
-//    if (*b=='('){
-//
-//    }
-//    return nullptr;
-//}
+inline bool is1op(char c){
+    return c == '~';
+}
+inline bool is2op(char c){
+    return c == '|' or c == '&' or c == '>' or c == '=';
+}
+
+Formula* Parse(char* b, char* e, Variable** vars) {
+    if (isletter(*b) and b+1 == e)
+        return vars[*b - 'a'];
+    if (*b=='~')
+        return new Negation(Parse(b+1,e,vars));
+    if (*b=='('){
+        int nawiasow_count = -1; char c;
+        for (int i = 0; b[i] != 0; ++i) {
+            c = b[i];
+            if (c == '(') nawiasow_count++;
+            if (c == ')') nawiasow_count--;
+            if (nawiasow_count == 0 and is2op(c)) {
+                char* b1 = b + 1;
+                char* e1 = b + i;
+                char* b2 = b + i + 1;
+                char* e2 = e - 1;
+                switch (c) {
+                    case '|':
+                        return new Alternative(Parse(b1, e1, vars), Parse(b2,e2,vars))
+                        break;
+                    case '&':
+                        return new Conjunction(Parse(b1, e1, vars), Parse(b2,e2,vars))
+                        break;
+                    case '>':
+                        return new Implication(Parse(b1, e1, vars), Parse(b2,e2,vars))
+                        break;
+                    case '=':
+                        return new Equivalence(Parse(b1, e1, vars), Parse(b2,e2,vars))
+                        break;
+                    default:
+                        cout << "Coś się zjebało..."
+                        break;
+
+                }
+            }
+        }
+    }
+    return nullptr;
+}
 
 int main() {
-//    constexpr int len = 'z' - 'a' + 1;
-//    bool* vars = new bool[len];
-//    Variable* Vars[len];
-//    for (int i = 0; i < len; ++i) {
-//        Vars[i] = new Variable(vars + i);
-//    }
-    bool* b = new bool;
-    *b = true;
-    auto* v = new Variable(b);
-    auto* nv = new Negation(v);
-    auto* nnv = new Negation(nv);
-    cout << v->val() << endl;
-    cout << nv->val() << endl;
-    delete nnv;
+    constexpr int len = 'z' - 'a' + 1;
+    bool* vars = new bool[len];
+    Variable** Vars = new Variable*[len];
+    for (int i = 0; i < len; ++i) {
+        Vars[i] = new Variable(vars + i);
+    }
+
+    char b[] = "(hakuna|matata)";
+    char* e = b + sizeof(b) - 1;
+
+    Formula* f = Parse(b, e, Vars); return 0;
+    vars['p'-'a'] = true;
+    cout << f->val() << endl;
+    vars['p'-'a'] = false;
+    cout << f->val() << endl;
+
+//    bool* b = new bool;
+//    *b = true;
+//    auto* v = new Variable(b);
+//    auto* nv = new Negation(v);
+//    auto* nnv = new Negation(nv);
+//    cout << v->val() << endl;
+//    cout << nv->val() << endl;
+//    delete nnv;
 }
