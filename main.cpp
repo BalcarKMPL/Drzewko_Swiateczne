@@ -99,19 +99,19 @@ Formula* Parse(char* b, char* e, Variable** vars) {
                 char* e2 = e - 1;
                 switch (c) {
                     case '|':
-                        return new Alternative(Parse(b1, e1, vars), Parse(b2,e2,vars))
+                        return new Alternative(Parse(b1, e1, vars), Parse(b2,e2,vars));
                         break;
                     case '&':
-                        return new Conjunction(Parse(b1, e1, vars), Parse(b2,e2,vars))
+                        return new Conjunction(Parse(b1, e1, vars), Parse(b2,e2,vars));
                         break;
                     case '>':
-                        return new Implication(Parse(b1, e1, vars), Parse(b2,e2,vars))
+                        return new Implication(Parse(b1, e1, vars), Parse(b2,e2,vars));
                         break;
                     case '=':
-                        return new Equivalence(Parse(b1, e1, vars), Parse(b2,e2,vars))
+                        return new Equivalence(Parse(b1, e1, vars), Parse(b2,e2,vars));
                         break;
                     default:
-                        cout << "Coś się zjebało..."
+                        cout << "Coś się zjebało...";
                         break;
 
                 }
@@ -129,21 +129,13 @@ int main() {
         Vars[i] = new Variable(vars + i);
     }
 
-    char b[] = "(hakuna|matata)";
+    char b[] = "(p>(q>p))";
     char* e = b + sizeof(b) - 1;
-
-    Formula* f = Parse(b, e, Vars); return 0;
-    vars['p'-'a'] = true;
-    cout << f->val() << endl;
-    vars['p'-'a'] = false;
-    cout << f->val() << endl;
-
-//    bool* b = new bool;
-//    *b = true;
-//    auto* v = new Variable(b);
-//    auto* nv = new Negation(v);
-//    auto* nnv = new Negation(nv);
-//    cout << v->val() << endl;
-//    cout << nv->val() << endl;
-//    delete nnv;
+    Formula* f = Parse(b, e, Vars);
+    cout << "p   q   " << b << endl;
+    for (int i = 0; i < 4; ++i) {
+        vars['p'-'a'] = (bool)(i & 1);
+        vars['q'-'a'] = (bool)(i & 2);
+        cout << vars['p'-'a']  << ' ' << b[2] << ' ' << vars['q'-'a'] << "   " << f->val() << endl;
+    }
 }
